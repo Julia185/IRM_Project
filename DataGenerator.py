@@ -22,7 +22,7 @@ class DataGenerator :
                  patient_error_path='patients_errors.json',
                  output_path='./preload_data'):
         self.__mode = mode
-        self.__prefix = DataGenerator.IMAGE_PREFIX if mode == LoaderMode.IMAGE else DataGenerator.IMAGE_SEQUENCE_PREFIX
+        #self.__prefix = DataGenerator.IMAGE_PREFIX if mode == LoaderMode.IMAGE else DataGenerator.IMAGE_SEQUENCE_PREFIX
 
         if sequences is None:
             sequences = ['STIR', 'T1']
@@ -166,16 +166,17 @@ class DataGenerator :
             print('MinCuts:',min_cuts)
             
             if not os.path.exists(self.__output_path):
+                print("NO")
                 os.mkdir(self.__output_path)
 
-            with open(os.path.join(self.__output_path, self.__prefix + 'X_{}.npy'.format(size)), 'wb') as f:
+            with open(os.path.join('X_{}.npy'.format(size)), 'wb') as f:
                 np.save(f,X)
-            with open(os.path.join(self.__output_path, self.__prefix + 'Y_{}.npy'.format(size)), 'wb') as f:
+            with open(os.path.join('Y_{}.npy'.format(size)), 'wb') as f:
                 np.save(f,Y)
         else:
-            with open(os.path.join(self.__output_path, self.__prefix + 'X_{}.npy'.format(size)), 'rb') as f:
+            with open(os.path.join('X_{}.npy'.format(size)), 'rb') as f:
                 X=np.load(f)
-            with open(os.path.join(self.__output_path, self.__prefix + 'Y_{}.npy'.format(size)), 'rb') as f:
+            with open(os.path.join('Y_{}.npy'.format(size)), 'rb') as f:
                 Y=np.load(f)
         
             if self.__mode == LoaderMode.IMAGE:
@@ -183,8 +184,8 @@ class DataGenerator :
             else:
                 min_cuts = int(X.shape[1] / 2)
 
-        X, Y, test_x, test_y, val_x, val_y = self.__generate_test_data(X, Y, test_size=0.25, val_size=0.25)
-        return X,Y,min_cuts
+        X, Y, test_x, test_y, val_x, val_y = self.generate_test_data(X, Y, test_size=0.25, val_size=0.25)
+        return X, Y, test_x, test_y, val_x, val_y, min_cuts
     
     
     
