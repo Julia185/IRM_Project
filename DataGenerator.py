@@ -22,8 +22,7 @@ class DataGenerator :
                  patient_error_path='patients_errors.json',
                  output_path='./preload_data'):
         self.__mode = mode
-        #self.__prefix = DataGenerator.IMAGE_PREFIX if mode == LoaderMode.IMAGE else DataGenerator.IMAGE_SEQUENCE_PREFIX
-
+        
         if sequences is None:
             sequences = ['STIR', 'T1']
 
@@ -206,7 +205,7 @@ class DataGenerator :
         val_y = None
 
         for i in range(0, self.__nb_classes):
-            _, classes = np.nonzero(Y)
+            classes = np.nonzero(Y)
             current_indices = np.where(classes == i)[0]
             current_test_size = round(len(current_indices) * test_size)
             current_val_size = round(len(current_indices) * val_size)
