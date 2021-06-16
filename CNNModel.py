@@ -7,6 +7,7 @@ Created on Tue May 18 10:13:20 2021
 
 import tensorflow as tf
 from keras.layers import Conv2D, Dropout, Flatten, Dense, MaxPool2D
+import os
 
 class CNNModel :
     def __init__(self, input_shape) :
@@ -45,13 +46,22 @@ class CNNModel :
     def optimize(self):
         print("Optimizer!")    
         
+        
     def train_Model(self, X_train, Y_train, X_test, Y_test, batch_size=128, epochs=10) : # VERIFIER LES PARAMETRES DE TOUTES LES FONCTIONS !!!
         print("Train function")
         # Training the model for 10 epochs.
-
         self.__model.fit(x=X_train, y=Y_train, validation_data=(X_test, Y_test), callbacks=self.__get_callbacks(), steps_per_epoch=int(len(X_train) / batch_size), epochs = epochs)
 
-        
+
+    def __get_callbacks(self):
+        return [
+            tf.keras.callbacks.EarlyStopping(monitor='val_loss', restore_best_weights=True, patience=50),
+            tf.keras.callbacks.ModelCheckpoint(os.path.join(self.__checkpoint_output, 'model{epoch:08d}.h5'),
+                                               mode='auto', monitor='val_loss', verbose=2, save_weights_only=True,
+                                               save_best_only=True)
+        ]
+
+            
         
     # reshape fucntion the input. 
     # input = tf.reshape(tensor = features["x"],shape =[-1, 28, 28, 1])
