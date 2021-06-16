@@ -45,10 +45,12 @@ class CNNModel :
     def optimize(self):
         print("Optimizer!")    
         
-    def train_Model(self, X_train, Y_train, X_test, Y_test) : # VERIFIER LES PARAMETRES DE TOUTES LES FONCTIONS !!!
+    def train_Model(self, X_train, Y_train, X_test, Y_test, batch_size=128, epochs=10) : # VERIFIER LES PARAMETRES DE TOUTES LES FONCTIONS !!!
         print("Train function")
         # Training the model for 10 epochs.
-        self.__model.fit(X_train, Y_train, batch_size=128, epochs=10, validation_data=(X_test, Y_test))
+
+        self.__model.fit(x=X_train, y=Y_train, validation_data=(X_test, Y_test), callbacks=self.__get_callbacks(), steps_per_epoch=int(len(X_train) / batch_size), epochs = epochs)
+
         
         
     # reshape fucntion the input. 
