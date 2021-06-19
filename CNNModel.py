@@ -123,9 +123,7 @@ class CNNModel :
         return model
       
         
-    
-    # TO VERIFY !!!
-    def train_Model(self, X_train, Y_train, X_test, Y_test, batch_size=128, epochs=10) : 
+    def train_Model(self, X_train, Y_train, X_test, Y_test) : 
         '''
         Function to train the CNN model.
 
@@ -135,14 +133,10 @@ class CNNModel :
             List of MRI image to train on.
         Y_train : numpy array
             List of MRI image to train on.
-        X_test : TYPE
+        X_test : numpy array
             List of MRI image to test the model.
-        Y_test : TYPE
+        Y_test : numpy array
             List of MRI image to test the model.
-        batch_size : int, optional
-            Number of images to train the model on for each batch. The default is 128.
-        epochs : int, optional
-            Number of epochs to train the model on. The default is 10.
 
         Returns
         -------
@@ -151,8 +145,7 @@ class CNNModel :
         '''
     
         print("Training the model...")
-        # Training the model for 10 epochs.
-        self.__model.fit(x=X_train, y=Y_train, validation_data=(X_test, Y_test), callbacks=self.__get_callbacks(), steps_per_epoch=int(len(X_train) / batch_size), epochs = epochs)
+        self.__model.fit(x = X_train, y = Y_train, validation_data = (X_test, Y_test), callbacks = self.__get_callbacks(), steps_per_epoch = int(len(X_train) / self.__batch_size), epochs = self.__n_epoch)
         print("Training done !")
         
 
