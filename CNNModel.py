@@ -15,10 +15,21 @@ from keras.optimizers import SGD
 
 
 class CNNModel :
-    def __init__(self, n_epoch=10, n_chan=4, batch_size = 128, loaded_model=False, w_reg=0.01, n_filters=[64,128,128,128], activation = 'relu', kernel_dims = [7,5,5,3]) :
+    def __init__(self, n_epoch = 10, n_channel = 4, batch_size = 128, loaded_model=False, w_reg=0.01, n_filters=[64,128,128,128], activation = 'relu', kernel_dims = [7,5,5,3]) :
+        '''
+        A class to compile the CNN Model, save it and analyze our results.
+        INPUT   (1) int 'n_epoch': number of epochs to train the model on (default value = 10).
+                (2) int 'n_channel': number of channels being assessed (default value = 4).
+                (3) int 'batch_size': number of images to train the model on for each batch (default value = 128).
+                (4) bool 'loaded_model': True if loading a pre-existing model. defaults to False
+                (5) float 'w_reg': value for l1 and l2 regularization. defaults to 0.01
+                (6) list 'n_filters': number of filters for each convolutional layer (4 total)
+                (7) list 'kernel_dims': dimension of the kernel at each layer (will be a dim[n] x dim[n] square).
+                (8) string 'activation': activation to use at each convolutional layer (default value = relu).
+        '''
         self.__name = "CNN Model"
         self.__n_epoch = n_epoch
-        self.__in_chan = n_chan
+        self.__in_channel = n_channel
         self.__batch_size = batch_size
         self.__loaded_model = loaded_model
         self.__w_reg = w_reg
