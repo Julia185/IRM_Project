@@ -12,21 +12,39 @@ from keras.callbacks import TensorBoard, ModelCheckpoint
 from keras.layers.normalization import BatchNormalization
 from keras.regularizers import l1l2
 from keras.optimizers import SGD
+import json
 
 
 class CNNModel :
     def __init__(self, n_epoch = 10, n_channel = 4, batch_size = 128, loaded_model=False, w_reg=0.01, n_filters=[64,128,128,128], activation = 'relu', kernel_dims = [7,5,5,3]) :
         '''
         A class to compile the CNN Model, save it and analyze our results.
-        INPUT   (1) int 'n_epoch': number of epochs to train the model on (default value = 10).
-                (2) int 'n_channel': number of channels being assessed (default value = 4).
-                (3) int 'batch_size': number of images to train the model on for each batch (default value = 128).
-                (4) bool 'loaded_model': True if loading a pre-existing model. defaults to False
-                (5) float 'w_reg': value for l1 and l2 regularization. defaults to 0.01
-                (6) list 'n_filters': number of filters for each convolutional layer (4 total)
-                (7) list 'kernel_dims': dimension of the kernel at each layer (will be a dim[n] x dim[n] square).
-                (8) string 'activation': activation to use at each convolutional layer (default value = relu).
+
+        Parameters
+        ----------
+        n_epoch : int, optional
+            Number of epochs to train the model on. The default is 10.
+        n_channel : int, optional
+            Number of channels being assessed. The default is 4.
+        batch_size : int, optional
+            Number of images to train the model on for each batch. The default is 128.
+        loaded_model : bool, optional
+            True if loading a pre-existing model. The default is False.
+        w_reg : float, optional
+            value for l1 and l2 regularization. The default is 0.01.
+        n_filters : list, optional
+            Number of filters for each convolutional layer (4 total). The default is [64,128,128,128].
+        activation : string, optional
+            Activation to use at each convolutional layer. The default is 'relu'.
+        kernel_dims : list, optional
+            Dimension of the kernel at each layer (will be a dim[n] x dim[n] square). The default is [7,5,5,3].
+
+        Returns
+        -------
+        None.
+
         '''
+        
         self.__name = "CNN Model"
         self.__n_epoch = n_epoch
         self.__in_channel = n_channel
@@ -47,6 +65,12 @@ class CNNModel :
     def build_model(self): 
         '''
         Compiles model with 4 convolutionnal layers.
+
+        Returns
+        -------
+        model : keras.Sequential
+            CNN Model.
+
         '''
         
         print("Building Model ...")
@@ -101,11 +125,36 @@ class CNNModel :
         
     
     # TO VERIFY !!!
-    def train_Model(self, X_train, Y_train, X_test, Y_test, batch_size=128, epochs=10) : # VERIFIER LES PARAMETRES DE TOUTES LES FONCTIONS !!!
-        print("Train function")
+    def train_Model(self, X_train, Y_train, X_test, Y_test, batch_size=128, epochs=10) : 
+        '''
+        Function to train the CNN model.
+
+        Parameters
+        ----------
+        X_train : numpy array
+            List of MRI image to train on.
+        Y_train : numpy array
+            List of MRI image to train on.
+        X_test : TYPE
+            List of MRI image to test the model.
+        Y_test : TYPE
+            List of MRI image to test the model.
+        batch_size : int, optional
+            Number of images to train the model on for each batch. The default is 128.
+        epochs : int, optional
+            Number of epochs to train the model on. The default is 10.
+
+        Returns
+        -------
+        None.
+
+        '''
+    
+        print("Training the model...")
         # Training the model for 10 epochs.
         self.__model.fit(x=X_train, y=Y_train, validation_data=(X_test, Y_test), callbacks=self.__get_callbacks(), steps_per_epoch=int(len(X_train) / batch_size), epochs = epochs)
-
+        print("Training done !")
+        
 
     # TO DO !!!
     def __get_callbacks(self):
@@ -124,9 +173,26 @@ class CNNModel :
         ]
 
     
-    # TO DO !!!
+    
     def save_model(self, model_name):
-        return
+        '''
+        Saves current model as a json file.
+
+        Parameters
+        ----------
+        model_name : string
+            Name of the current model to save.
+
+        Returns
+        -------
+        None.
+
+        '''
+        
+        model = '{}.json'.format(model_name)
+        json_string = self.model_comp.to_json()
+        with open(model, 'w') as f:
+            json.dump(json_string, f)
     
     
     # TO DO !!!
