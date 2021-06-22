@@ -10,6 +10,7 @@ import cv2
 import json
 import numpy as np
 from enum import Enum
+import random
 
 class LoaderMode(Enum):
     IMAGE = 0
@@ -17,11 +18,11 @@ class LoaderMode(Enum):
 
 class DataGenerator :
     def __init__(self, path, mode=LoaderMode.IMAGE, classes=None, sequences=None,
-                 sequences_path='patients_sequences.json',
-                 locations_path='patients_locations.json',
-                 patient_error_path='patients_errors.json',
+                 sequences_path='patientsSequences.json',
+                 locations_path='patientsLocations.json',
+                 patient_error_path='patientsErrors.json',
                  output_path='./preload_data'):
-        self.__mode = mode
+        self.mode = mode
         
         if sequences is None:
             sequences = ['STIR', 'T1']
@@ -29,24 +30,25 @@ class DataGenerator :
         if classes is None:
             classes = ["RMI_OK", "RMI_INF", "RMI_DEG"]
 
-        self.__data_path = path
+        self.data_path = path
 
-        self.__sequences = sequences
-        self.__sequences_path = os.path.join(self.__data_path, sequences_path)
+        self.sequences = sequences
+        self.sequences_path = os.path.join(self.data_path, sequences_path)
 
-        self.__classes = classes
-        self.__nb_classes = len(self.__classes)
-        self.__locations_path = os.path.join(self.__data_path, locations_path)
+        self.classes = classes
+        self.nb_classes = len(self.classes)
+        self.locations_path = os.path.join(self.data_path, locations_path)
 
-        self.__patients = {}
-        self.__patient_error_path = os.path.join(self.__data_path, patient_error_path)
-        self.__output_path = output_path
+        self.patients = {}
+        self.patient_error_path = os.path.join(self.data_path, patient_error_path)
+        self.output_path = output_path
     
     
     
     def generate_data(self,size):
         PatientsSequences = {}
-        with open(self.__sequences_path,'rb') as f:
+        with open(self.sequences_path,'rb') as f:
+            print("Load Patients Sequence json")
             text = json.load(f)
 
             # For each patient, we associate the MRI.
@@ -54,7 +56,8 @@ class DataGenerator :
                 PatientsSequences[int(key)] = value
 
         PatientsLocations={}
-        with open(self.__locations_path,'rb') as f:
+        with open(self.locations_path,'rb') as f:
+            print("Load Patients Location json")
             text=json.load(f)
             
             # For each patient, we locate the data.
@@ -63,26 +66,25 @@ class DataGenerator :
 
         X = []
         Y = []
-        classes_list = [name for name in os.listdir(self.__data_path) if
-                        os.path.isdir(os.path.join(self.__data_path, name))]
+        classes_list = os.listdir(os.path.join(self.data_path, 'images\\raw'))
 
         for c in classes_list:
-            file_list = os.listdir(os.path.join(self.__data_path, c))
+            file_list = os.listdir(os.path.join(os.path.join(self.data_path, 'images\\raw'), c))
 
             patient_set = set()         # Unordered unique set.
             for f in file_list:         # For each picture in one forlder.
                 if '.png' in f:
                     pid = int(f[:4])    # pid = Patient ID.
                     patient_set.add(pid)
-            self.__patients[c] = patient_set   # Stores the name of the patients of one direct linked to direct name.
+            self.patients[c] = patient_set   # Stores the name of the patients of one direct linked to direct name.
 
         PatientsOK = {}
         min_cuts = 100
         PatientsErrors = {}
 
         for c in classes_list:
-            for pid in self.__patients[c]:
-                print('Class:',c,' - Patient:',pid)
+            for pid in self.patients[c]:
+                #print('Class:',c,' - Patient:',pid)
                 m1 = PatientsSequences[pid]['STIR'][0][1]       # STIR photo number.
                 if 'T1' in PatientsSequences[pid]:
                     m2 = PatientsSequences[pid]['T1'][0][1]     # T1 photo number.
@@ -91,7 +93,7 @@ class DataGenerator :
                         l1 = PatientsLocations[pid]['T1'][0]
                         l2 = PatientsLocations[pid]['STIR'][0]
                         PatientsErrors[pid]={'CL':c,'T1':m1,'STIR':m2,'T1Cuts':l1,'STIRCuts':l2}
-                        print('Different length for',pid,'(',m1,'-',m2,')',l1,l2)
+                        #print('Different length for',pid,'(',m1,'-',m2,')',l1,l2)
                         PatientsOK[pid] = 0
                     else:
                         PatientsOK[pid] = 1
@@ -101,54 +103,58 @@ class DataGenerator :
                 m = min(m1, m2)
                 min_cuts = min(min_cuts, m)
                 #print(pid,PatientsSequences[pid],m)
-
+                
         f = open("PatientsErrors.json","w")
         for pid in PatientsErrors.keys():
             f.write('{}:{}\n'.format(pid,PatientsErrors[pid]))
         f.close()
-
-        half_cut = int(min_cuts/2)
-
-        nb_frames = min_cuts*2
+  
+        half_cut = int(min_cuts / 2)
+        nb_frames = min_cuts * 2
+  
         for c in classes_list:
-            for pid in self.__patients[c]:
+            for pid in self.patients[c]:
                 if pid not in PatientsOK:
                     continue
                 if PatientsOK[pid]:
-                    if self.__mode == LoaderMode.IMAGE:
+                    if self.mode == LoaderMode.IMAGE:
                         simage = np.zeros((size, size, nb_frames))
                     else:
                         simage = np.zeros((nb_frames, size, size, 1))
                     
                     i = 0
+                    error = 0
                 
                     # s = 'STIR' || s = 'T1'
-                    for s in self.__sequences: 
+                    for s in self.sequences: 
                         # On coupe les data en 2 paquets.
                         half_nb_imgs = int(PatientsSequences[pid][s][0][1]/2)
                         first_img_id = PatientsSequences[pid][s][0][0] + half_nb_imgs - half_cut
                     
                         for img_id in range(min_cuts):
                             cut_id = first_img_id + img_id
-                            file = os.path.join(self.__data_path, c) + '/' 
-                            + str(pid).zfill(4) + '_' + s + '_' + str(cut_id).zfill(4) + '.png'
+                            file = os.path.join(self.data_path, c) + '/' + str(pid).zfill(4) + '_' + s + '_' + str(cut_id).zfill(4) + '.png'
                             #print('Load',file)
                             
-                            image = cv2.imread(file,0)
-                            height, width = image.shape[:2]
-                            image = cv2.resize(image, (size, size))
+                            image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)                            
                             
-                            if self.__mode == LoaderMode.IMAGE:
-                                simage[:, :, i] = image
-                            else:
-                                simage[i, :, :, 0] = image
+                            try:
+                                image = cv2.resize(image, (size, size))
+                                
+                                if self.mode == LoaderMode.IMAGE:
+                                    simage[:, :, i] = image
+                                else:
+                                    simage[i, :, :, 0] = image
+                            except Exception as e:
+                                #print(f'Error found at {file} & {cut_id}\n')
+                                error += 1
                             
                             i += 1
 
                     X.append(simage)
 
-                    y = [0]*len(self.__classes)
-                    y[self.__classes.index(c)] = 1
+                    y = [0]*len(self.classes)
+                    y[self.classes.index(c)] = 1
                     Y.append(y)
 
         X = np.asarray(X)
@@ -187,14 +193,17 @@ class DataGenerator :
             DESCRIPTION.
 
         '''
+        
+        print("Loading Data...")
+        
         # We generate the npy files for the different sizes.
-        if generate_array:
+        if generate_array: 
             X, Y, min_cuts = self.generate_data(size)
             print('MinCuts:',min_cuts)
             
-            if not os.path.exists(self.__output_path):
+            if not os.path.exists(self.output_path):
                 print("NO")
-                os.mkdir(self.__output_path)
+                os.mkdir(self.output_path)
 
             with open(os.path.join('X_{}.npy'.format(size)), 'wb') as f:
                 np.save(f,X)
@@ -206,12 +215,15 @@ class DataGenerator :
             with open(os.path.join('Y_{}.npy'.format(size)), 'rb') as f:
                 Y=np.load(f)
         
-            if self.__mode == LoaderMode.IMAGE:
+            if self.mode == LoaderMode.IMAGE:
                 min_cuts = int(X.shape[3] / 2)
             else:
                 min_cuts = int(X.shape[1] / 2)
+                
+        print("Loadind data Done !")
 
-        #X, Y, test_x, test_y, val_x, val_y = self.generate_test_data(X, Y, test_size=0.25, val_size=0.25)
+        X, Y, test_x, test_y, val_x, val_y = self.generate_test_data(X, Y, test_size=0.25, val_size=0.25)
+        
         return X, Y, min_cuts #, test_x, test_y, val_x, val_y, min_cuts
     
     
@@ -256,15 +268,19 @@ class DataGenerator :
             DESCRIPTION.
 
         '''
+        
+        print("Generating Test data...")
+        
         test_x = None
         test_y = None
 
         val_x = None
         val_y = None
 
-        for i in range(0, self.__nb_classes):
+        for i in range(0, self.nb_classes):
             classes = np.nonzero(Y)
             current_indices = np.where(classes == i)[0]
+            print(current_indices)
             current_test_size = round(len(current_indices) * test_size)
             current_val_size = round(len(current_indices) * val_size)
             to_remove_number = current_test_size + current_val_size

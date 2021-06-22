@@ -10,8 +10,8 @@ from CNNModel import CNNModel
 
 if __name__ == '__main__':
     mode = LoaderMode.IMAGE_SEQUENCE
-    path = r"C:\Users\julia\Desktop\UTBM\Cours\Branche\INFO4\TX52\IRM_Project\images\raw"
-    
+    path = r"C:\Users\julia\Desktop\UTBM\Cours\Branche\INFO4\TX52\IRM_Project"
+
     # We create an instance of the class DataGenerator
     data = DataGenerator(path, mode=LoaderMode.IMAGE)
     
@@ -22,6 +22,7 @@ if __name__ == '__main__':
         model = CNNModel()
     else:
         print("SEQUENCES")
-        size = 32
-        x, y,  seq_len = data.loadData(size, generate_array=False) #test_x, test_y, val_x, val_y,
-        model = CNNModel()
+        size = 128
+        x, y,  seq_len = data.loadData(size, generate_array= True) #test_x, test_y, val_x, val_y,
+        #model = CNNModel()
+        #model.train_Model()

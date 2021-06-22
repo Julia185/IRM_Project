@@ -57,7 +57,7 @@ class CNNModel :
         self.kernel_dims = kernel_dims
         self.checkpoint_output = checkpoint_output
         
-        self.__model = self.build_model()
+        self.model = self.build_model()
 
         #if not self.loaded_model:
             #self.__model = self.build_model()
@@ -148,7 +148,7 @@ class CNNModel :
         '''
     
         print("Training the model...")
-        self.__model.fit(x = X_train, y = Y_train, validation_data = (X_test, Y_test), callbacks = self.__get_callbacks(), steps_per_epoch = int(len(X_train) / self.__batch_size), epochs = self.__n_epoch, verbose = 1)
+        self.model.fit(x = X_train, y = Y_train, validation_data = (X_test, Y_test), callbacks = self.get_callbacks(), steps_per_epoch = int(len(X_train) / self.batch_size), epochs = self.n_epoch, verbose = 1)
         print("Training done !")
         
 
