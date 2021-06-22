@@ -8,10 +8,12 @@ Created on Tue May 18 10:13:20 2021
 import tensorflow as tf
 from keras.layers import Conv2D, Dropout, Flatten, Dense, MaxPool2D, Activation
 import os
-from keras.callbacks import TensorBoard, ModelCheckpoint
+import numpy as np
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from keras.layers.normalization import BatchNormalization
 from keras.optimizers import SGD
-import json
+from keras.utils import np_utils
+
 
 
 class CNNModel :
@@ -59,11 +61,7 @@ class CNNModel :
         
         self.model = self.build_model()
 
-        #if not self.loaded_model:
-            #self.__model = self.build_model()
-        #else :
-            #existing_model = str(input('Which model should I load? '))
-            #self.__model = self.load_model(existing_model)
+
         
     def build_model(self): 
         '''
@@ -120,13 +118,13 @@ class CNNModel :
         model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='sgd')
         
         # Looking at the model summary.
-        model.summary()
+        #model.summary()
         
         print("Done building model !")
         return model
       
         
-    def train_Model(self, X_train, Y_train, X_test, Y_test) : 
+    def train_Model(self, X_train, y_train) : 
         '''
         Function to train the CNN model.
 
@@ -148,7 +146,21 @@ class CNNModel :
         '''
     
         print("Training the model...")
-        self.model.fit(x = X_train, y = Y_train, validation_data = (X_test, Y_test), callbacks = self.get_callbacks(), steps_per_epoch = int(len(X_train) / self.batch_size), epochs = self.n_epoch, verbose = 1)
+        
+        Y_train = np_utils.to_categorical(y_train, 5)
+
+        shuff = list(zip(X_train, Y_train))
+        np.random.shuffle(shuff)
+
+        X_train = np.array([shuff[i][0] for i in range(sum(1 for _ in shuff))])
+        Y_train = np.array([shuff[i][1] for i in range(sum(1 for _ in shuff))])
+        #es = EarlyStopping(monitor='val_loss', patience=2, verbose=1, mode='auto')
+
+        # Save model after each epoch to check/bm_epoch#-val_loss
+        checkpointer = ModelCheckpoint(filepath="./check/bm_{epoch:02d}-{val_loss:.2f}.hdf5", verbose=1)
+
+        self.model.fit(X_train, Y_train, batch_size=self.batch_size, epochs=self.n_epoch, validation_split=0.1, verbose=1, callbacks=[checkpointer])
+        
         print("Training done !")
         
 
@@ -165,45 +177,24 @@ class CNNModel :
         
         return [
             tf.keras.callbacks.EarlyStopping(monitor = 'val_loss', restore_best_weights = True, patience = 50),
-            tf.keras.callbacks.ModelCheckpoint(os.path.join(self.__checkpoint_output, 'model{epoch:08d}.h5'),
+            tf.keras.callbacks.ModelCheckpoint(os.path.join(self.checkpoint_output, 'model{epoch:08d}.h5'),
                                                mode='auto', monitor='val_loss', verbose=2, save_weights_only=True,
                                                save_best_only=True)
         ]
     
     
-    def save_model(self, model_name):
+    def evaluate(self, x_test, y_test):
         '''
-        Saves current model as a json file.
+        Compute the loss and accuracy of the model.
 
         Parameters
         ----------
-        model_name : string
-            Name of the current model to save.
+        x_test : numpy array
+        y_test : numpy array
 
         Returns
         -------
-        None.
+            Returns the test loss.
 
         '''
-        
-        model = '{}.json'.format(model_name)
-        json_string = self.model_comp.to_json()
-        with open(model, 'w') as f:
-            json.dump(json_string, f)
-    
-    
-    def load_model(self):
-        '''
-        Load an already existing model.
-
-        Returns
-        -------
-        None.
-
-        '''
-        weights = '{}.hdf5'.format(self.__name)
-        self.__model.load_weights(weights)
-    
-    
-    # reshape fucntion the input. 
-    # input = tf.reshape(tensor = features["x"],shape =[-1, 28, 28, 1])    
+        return self.model.evaluate(x_test, y_test, verbose=1)

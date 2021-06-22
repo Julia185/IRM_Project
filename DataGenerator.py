@@ -9,20 +9,15 @@ import os
 import cv2
 import json
 import numpy as np
-from enum import Enum
 import random
 
-class LoaderMode(Enum):
-    IMAGE = 0
-    IMAGE_SEQUENCE = 1
 
 class DataGenerator :
-    def __init__(self, path, mode=LoaderMode.IMAGE, classes=None, sequences=None,
+    def __init__(self, path, classes=None, sequences=None,
                  sequences_path='patientsSequences.json',
                  locations_path='patientsLocations.json',
                  patient_error_path='patientsErrors.json',
                  output_path='./preload_data'):
-        self.mode = mode
         
         if sequences is None:
             sequences = ['STIR', 'T1']
@@ -117,10 +112,7 @@ class DataGenerator :
                 if pid not in PatientsOK:
                     continue
                 if PatientsOK[pid]:
-                    if self.mode == LoaderMode.IMAGE:
-                        simage = np.zeros((size, size, nb_frames))
-                    else:
-                        simage = np.zeros((nb_frames, size, size, 1))
+                    simage = np.zeros((size, size, nb_frames))
                     
                     i = 0
                     error = 0
@@ -140,11 +132,7 @@ class DataGenerator :
                             
                             try:
                                 image = cv2.resize(image, (size, size))
-                                
-                                if self.mode == LoaderMode.IMAGE:
-                                    simage[:, :, i] = image
-                                else:
-                                    simage[i, :, :, 0] = image
+                                simage[:, :, i] = image
                             except Exception as e:
                                 #print(f'Error found at {file} & {cut_id}\n')
                                 error += 1
@@ -215,10 +203,7 @@ class DataGenerator :
             with open(os.path.join('Y_{}.npy'.format(size)), 'rb') as f:
                 Y=np.load(f)
         
-            if self.mode == LoaderMode.IMAGE:
-                min_cuts = int(X.shape[3] / 2)
-            else:
-                min_cuts = int(X.shape[1] / 2)
+            min_cuts = int(X.shape[3] / 2)
                 
         print("Loadind data Done !")
 
