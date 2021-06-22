@@ -80,27 +80,27 @@ class CNNModel :
         model = tf.keras.Sequential()
         
         # 1st convolutionnal layers.
-        model.add(Conv2D(filters = self.n_filters[0], kernel_size=(self.kernel_dims[0], self.kernel_dims[0]), padding = 'valid', input_shape = (33,33,self.n_channel)))
+        model.add(Conv2D(filters = self.n_filters[0], kernel_size=(self.kernel_dims[0], self.kernel_dims[0]), padding = 'valid', input_shape = (self.n_channel,33,33, 1)))
         model.add(Activation(self.activation))
-        model.add(BatchNormalization())
+        model.add(BatchNormalization(axis=1))
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
         # 2nd convolutionnal layer.
         model.add(Conv2D(filters = self.n_filters[1], kernel_size=(self.kernel_dims[1], self.kernel_dims[1]), activation = self.activation, padding = 'valid'))
-        model.add(BatchNormalization())
+        model.add(BatchNormalization(axis=1))
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
         # 3rd convolutionnal layer.
         model.add(Conv2D(filters = self.n_filters[2], kernel_size=(self.kernel_dims[2], self.kernel_dims[2]), activation = self.activation, padding = 'valid'))
-        model.add(BatchNormalization())
+        model.add(BatchNormalization(axis=1))
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
         # 4th convolutionnal layer.
         model.add(Conv2D(filters = self.n_filters[3], kernel_size=(self.kernel_dims[3], self.kernel_dims[3]), activation = self.activation, padding = 'valid'))
-        model.add(BatchNormalization())
+        model.add(BatchNormalization(axis=1))
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
@@ -118,7 +118,7 @@ class CNNModel :
         model.compile(loss='categorical_crossentropy', metrics=['accuracy'], optimizer='sgd')
         
         # Looking at the model summary.
-        #model.summary()
+        model.summary()
         
         print("Done building model !")
         return model
