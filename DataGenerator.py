@@ -159,6 +159,34 @@ class DataGenerator :
     
     
     def loadData(self,size,generate_array=True):
+        '''
+        Function to load the data.
+
+        Parameters
+        ----------
+        size : int
+            Size of the image.
+        generate_array : Boolean, optional
+            Variable used to see if we need to generate arrays. The default is True.
+
+        Returns
+        -------
+        X : numpy array
+            DESCRIPTION.
+        Y : numpy array
+            DESCRIPTION.
+        test_x : numpy array.
+            DESCRIPTION.
+        test_y : numpy array
+            DESCRIPTION.
+        val_x : numpy array
+            DESCRIPTION.
+        val_y : numpy array
+            DESCRIPTION.
+        min_cuts : int
+            DESCRIPTION.
+
+        '''
         # We generate the npy files for the different sizes.
         if generate_array:
             X, Y, min_cuts = self.generate_data(size)
@@ -183,8 +211,8 @@ class DataGenerator :
             else:
                 min_cuts = int(X.shape[1] / 2)
 
-        X, Y, test_x, test_y, val_x, val_y = self.generate_test_data(X, Y, test_size=0.25, val_size=0.25)
-        return X, Y, test_x, test_y, val_x, val_y, min_cuts
+        #X, Y, test_x, test_y, val_x, val_y = self.generate_test_data(X, Y, test_size=0.25, val_size=0.25)
+        return X, Y, min_cuts #, test_x, test_y, val_x, val_y, min_cuts
     
     
     
@@ -198,6 +226,36 @@ class DataGenerator :
     
     
     def generate_test_data(self, X, Y, test_size=1/10, val_size=3/10):
+        '''
+        Function that generate the data for the test part of CNN.
+
+        Parameters
+        ----------
+        X : numpy array
+            DESCRIPTION.
+        Y : numpy array
+            DESCRIPTION.
+        test_size : int, optional
+            DESCRIPTION. The default is 1/10.
+        val_size : int, optional
+            DESCRIPTION. The default is 3/10.
+
+        Returns
+        -------
+        X : numpy array
+            DESCRIPTION.
+        Y : numpy array
+            DESCRIPTION.
+        test_x : numpy array
+            DESCRIPTION.
+        test_y : numpy array
+            DESCRIPTION.
+        val_x : TYPE
+            DESCRIPTION.
+        val_y : TYPE
+            DESCRIPTION.
+
+        '''
         test_x = None
         test_y = None
 

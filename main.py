@@ -6,6 +6,7 @@ Created on Tue May 4 17:48:12 2021
 """
 
 from DataGenerator import DataGenerator, LoaderMode
+from CNNModel import CNNModel
 
 if __name__ == '__main__':
     mode = LoaderMode.IMAGE_SEQUENCE
@@ -18,7 +19,9 @@ if __name__ == '__main__':
         print("IMAGE")
         size = 32
         x, y, test_x, test_y, val_x, val_y, seq_len = data.loadData(size, generate_array=False)
+        model = CNNModel()
     else:
         print("SEQUENCES")
         size = 32
-        x, y, test_x, test_y, val_x, val_y, seq_len = data.loadData(size, generate_array=False)
+        x, y,  seq_len = data.loadData(size, generate_array=False) #test_x, test_y, val_x, val_y,
+        model = CNNModel()
