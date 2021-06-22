@@ -224,7 +224,7 @@ class DataGenerator :
 
         X, Y, test_x, test_y, val_x, val_y = self.generate_test_data(X, Y, test_size=0.25, val_size=0.25)
         
-        return X, Y, min_cuts #, test_x, test_y, val_x, val_y, min_cuts
+        return X, Y, test_x, test_y, val_x, val_y, min_cuts
     
     
     
@@ -278,9 +278,8 @@ class DataGenerator :
         val_y = None
 
         for i in range(0, self.nb_classes):
-            classes = np.nonzero(Y)
-            current_indices = np.where(classes == i)[0]
-            print(current_indices)
+            _, classes = np.nonzero(Y)
+            current_indices = np.where(classes == i)[0]            
             current_test_size = round(len(current_indices) * test_size)
             current_val_size = round(len(current_indices) * val_size)
             to_remove_number = current_test_size + current_val_size
@@ -307,4 +306,5 @@ class DataGenerator :
 
             Y = np.delete(Y, np.arange(start_index, start_index + to_remove_number, 1), axis=0)
 
+        print("Generating test data Done !")
         return X, Y, test_x, test_y, val_x, val_y

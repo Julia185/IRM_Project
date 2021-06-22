@@ -23,6 +23,8 @@ if __name__ == '__main__':
     else:
         print("SEQUENCES")
         size = 128
-        x, y,  seq_len = data.loadData(size, generate_array= True) #test_x, test_y, val_x, val_y,
-        #model = CNNModel()
-        #model.train_Model()
+        x, y, test_x, test_y, val_x, val_y, seq_len = data.loadData(size, generate_array= True)
+        
+        model = CNNModel()
+        
+        model.train_Model(x, y, test_x, test_y)

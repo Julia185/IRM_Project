@@ -152,7 +152,6 @@ class CNNModel :
         print("Training done !")
         
 
-    # TO DO !!!
     def __get_callbacks(self):
         '''
         List of callbacks to apply during training function.
