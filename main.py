@@ -17,11 +17,11 @@ if __name__ == '__main__':
     size = 128
     
     x, y, test_x, test_y, val_x, val_y, seq_len = data.loadData(size, generate_array= True)
-    
+    print(x.shape)
     model = CNNModel()
         
     model.train_Model(x, y)
     
-    loss, accuracy = model.evaluate(test_x, test_y)
-    print('Loss = {}'.format(loss))
-    print('Accuracy = {}'.format(accuracy))
+    #loss, accuracy = model.evaluate(test_x, test_y)
+    #print('Loss = {}'.format(loss))
+    #print('Accuracy = {}'.format(accuracy))

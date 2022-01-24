@@ -15,32 +15,58 @@ class ImagePreProcess :
         self.__mode = mode
     
     def modifyImage(self, train_set, validation_set, test_set):
+        '''
+        Load the MRI images and use preprocessing function on it.
+
+        Parameters
+        ----------
+        train_set : set
+            Set used for the training part.
+        validation_set : set
+            Set used for the validation part.
+        test_set : set
+            Set used for the testing part.
+
+        Returns
+        -------
+        train_set : set
+            Set used for the training part.
+        validation_set : set
+            Set used for the validation part.
+        test_set : set
+            Set used for the testing part.
+
+        '''
+        
         # For every set, we pre process the images.
-        if self.__mode == LoaderMode.IMAGE:
-            for i in range(train_set.shape[0]) :
-                for j in range(train_set.shape[3]):
-                    train_set[i, :, :, j] = self.imagePreProcess(train_set[i, :, :, j])
-            for i in range(validation_set.shape[0]) :
-                for j in range(validation_set.shape[3]):
-                    validation_set[i, :, :, j] = self.imagePreProcess(validation_set[i, :, :, j])
-            for i in range(test_set.shape[0]) :
-                for j in range(test_set.shape[3]):
-                    test_set[i, :, :, j] = self.imagePreProcess(test_set[i, :, :, j])
-        else :
-            for i in range(train_set.shape[0]) :
-                for j in range(train_set.shape[3]):
-                    train_set[i, j, :, :, 0] = self.imagePreProcess(train_set[i, j, :, :, 0])
-            for i in range(validation_set.shape[0]) :
-                for j in range(validation_set.shape[3]):
-                    validation_set[i, j, :, :, 0] = self.imagePreProcess(validation_set[i, j, :, :, 0])
-            for i in range(test_set.shape[0]) :
-                for j in range(test_set.shape[3]):
-                    test_set[i, j, :, :, 0] = self.imagePreProcess(test_set[i, j, :, :, 0])
+        for i in range(train_set.shape[0]) :
+            for j in range(train_set.shape[3]):
+                train_set[i, :, :, j] = self.imagePreProcess(train_set[i, :, :, j])
+        for i in range(validation_set.shape[0]) :
+            for j in range(validation_set.shape[3]):
+                validation_set[i, :, :, j] = self.imagePreProcess(validation_set[i, :, :, j])
+        for i in range(test_set.shape[0]) :
+            for j in range(test_set.shape[3]):
+                test_set[i, :, :, j] = self.imagePreProcess(test_set[i, :, :, j])
         return train_set, test_set, validation_set
 
 
 
     def imagePreProcess(self,image):
+        '''
+        Pre processing of the MRI images.
+
+        Parameters
+        ----------
+        image : image
+            Image to .
+
+        Returns
+        -------
+        dilate : TYPE
+            DESCRIPTION.
+
+        '''
         # We save the parameters of the image.
         height, width = image.shape[:2]
     

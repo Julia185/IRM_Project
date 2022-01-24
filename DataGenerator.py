@@ -9,7 +9,6 @@ import os
 import cv2
 import json
 import numpy as np
-import random
 
 
 class DataGenerator :
@@ -18,6 +17,31 @@ class DataGenerator :
                  locations_path='patientsLocations.json',
                  patient_error_path='patientsErrors.json',
                  output_path='./preload_data'):
+        '''
+        A class to generate the data from the loaded data.
+
+        Parameters
+        ----------
+        path : String
+            path to the folder on the computer.
+        classes : list, optional
+            List of different type of patient. The default is None.
+        sequences : list, optional
+            List of different type of MRI. The default is None.
+        sequences_path : String, optional
+            Path to the location of json Sequences file. The default is 'patientsSequences.json'.
+        locations_path : String, optional
+            Path to the location of json Location file. The default is 'patientsLocations.json'.
+        patient_error_path : String, optional
+            DESCRIPTION. The default is 'patientsErrors.json'.
+        output_path : String, optional
+            name of the path to save the output. The default is './preload_data'.
+
+        Returns
+        -------
+        None.
+
+        '''
         
         if sequences is None:
             sequences = ['STIR', 'T1']
@@ -41,6 +65,24 @@ class DataGenerator :
     
     
     def generate_data(self,size):
+        '''
+        Generate data for the neural network.
+
+        Parameters
+        ----------
+        size : int
+            Size of the data to generate.
+
+        Returns
+        -------
+        X : numpy array
+            DESCRIPTION.
+        Y : numpy array
+            DESCRIPTION.
+        min_cuts : int
+            Minimum image number among all the patients.
+
+        '''
         PatientsSequences = {}
         with open(self.sequences_path,'rb') as f:
             print("Load Patients Sequence json")
@@ -133,7 +175,7 @@ class DataGenerator :
                             try:
                                 image = cv2.resize(image, (size, size))
                                 simage[:, :, i] = image
-                            except Exception as e:
+                            except Exception:
                                 #print(f'Error found at {file} & {cut_id}\n')
                                 error += 1
                             
@@ -214,6 +256,24 @@ class DataGenerator :
     
     
     def getErrorsOnHealthy(test_y,best_pred,idx_test):
+        '''
+        Give the list of MRI images with error.
+
+        Parameters
+        ----------
+        test_y : set
+            DESCRIPTION.
+        best_pred : float
+            The number to compare the image to.
+        idx_test : int
+            Index to go through test_y.
+
+        Returns
+        -------
+        errors_on_healthy : list
+            List of image with errors.
+
+        '''
         errors_on_healthy=[]
         for i in range(len(test_y)):
             if test_y[i]==0 and best_pred[i]!=test_y[i]:

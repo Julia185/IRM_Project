@@ -6,7 +6,7 @@ Created on Tue May 18 10:13:20 2021
 """
 
 import tensorflow as tf
-from keras.layers import Conv2D, Dropout, Flatten, Dense, MaxPool2D, Activation
+from keras.layers import *
 import os
 import numpy as np
 from keras.callbacks import ModelCheckpoint, EarlyStopping
@@ -16,8 +16,9 @@ from keras.utils import np_utils
 
 
 
+
 class CNNModel :
-    def __init__(self, n_epoch = 10, n_channel = 4, batch_size = 128, loaded_model=False, w_reg=0.01, n_filters=[64,128,128,128], activation = 'relu', kernel_dims = [7,5,5,3], checkpoint_output = "./checkpoints") :
+    def __init__(self, n_epoch = 10, n_channel = 1, batch_size = 128, loaded_model=False, w_reg=0.01, n_filters=[128,128,128,128], activation = 'relu', kernel_dims = [7,5,5,3], checkpoint_output = "./checkpoints") :
         '''
         A class to compile the CNN Model, save it and analyze our results.
 
@@ -47,6 +48,7 @@ class CNNModel :
         None.
 
         '''
+        # AJOUTER LA TAILLE DES IMAGES AVEC LE X.SHAPE DU MAIN !!!
         
         self.name = "CNN Model"
         self.n_epoch = n_epoch
@@ -76,31 +78,35 @@ class CNNModel :
         
         print("Building Model ...")
         
+        # Boucle FOR pour création des couches , nb image / patient = x.shape du main
+        # REVOIR LA CREATION DU MODEL !!!!
+        
         # Building a linear stack of layers with the sequential model.
         model = tf.keras.Sequential()
         
         # 1st convolutionnal layers.
-        model.add(Conv2D(filters = self.n_filters[0], kernel_size=(self.kernel_dims[0], self.kernel_dims[0]), padding = 'valid', input_shape = (self.n_channel,33,33, 1)))
+        model.add(Input(shape=(128,128,22)))
+        model.add(Conv2D(filters = self.n_filters[0], kernel_size=(self.kernel_dims[0], self.kernel_dims[0]), padding = 'valid'))
         model.add(Activation(self.activation))
-        model.add(BatchNormalization(axis=1))
+        model.add(BatchNormalization())
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
         # 2nd convolutionnal layer.
         model.add(Conv2D(filters = self.n_filters[1], kernel_size=(self.kernel_dims[1], self.kernel_dims[1]), activation = self.activation, padding = 'valid'))
-        model.add(BatchNormalization(axis=1))
+        model.add(BatchNormalization())
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
         # 3rd convolutionnal layer.
         model.add(Conv2D(filters = self.n_filters[2], kernel_size=(self.kernel_dims[2], self.kernel_dims[2]), activation = self.activation, padding = 'valid'))
-        model.add(BatchNormalization(axis=1))
+        model.add(BatchNormalization())
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
         # 4th convolutionnal layer.
         model.add(Conv2D(filters = self.n_filters[3], kernel_size=(self.kernel_dims[3], self.kernel_dims[3]), activation = self.activation, padding = 'valid'))
-        model.add(BatchNormalization(axis=1))
+        model.add(BatchNormalization())
         model.add(MaxPool2D(pool_size=(2,2), strides = (1,1)))
         model.add(Dropout(0.5))
         
@@ -109,7 +115,7 @@ class CNNModel :
         model.add(BatchNormalization())
         
         # Output layer.
-        model.add(Dense(10, activation='softmax'))
+        model.add(Dense(3, activation='softmax'))
         
         # Build the optimizer.
         sgd = SGD(lr=0.001, decay=0.01, momentum=0.9)
